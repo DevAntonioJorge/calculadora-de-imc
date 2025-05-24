@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 
 enum Classificacao{
     ObesidadeGrave,
@@ -27,19 +29,26 @@ fn main() {
     loop {
         let mut peso = String::new();
         let mut altura = String::new();
+        let mut op = String::new();
 
         println!("Peso (kg): ");
-        std::io::stdin()
-            .read_line(&mut peso)
-            .unwrap();
-
+        let peso = match read_input(&mut peso){
+            Ok(num) => num,
+            Err(error) => {
+                println!("Erro ao digitar o peso: {}", error);
+                continue;
+            }
+        };
         
         println!("Altura (m): ");
-        std::io::stdin()
-            .read_line(&mut altura)
-            .unwrap();
-        let peso: f32 = peso.trim().parse().expect("Peso inválido");
-        let altura: f32 = altura.trim().parse().expect("Altura inválida");
+        let altura = match read_input(&mut altura){
+            Ok(num) => num,
+            Err(error) => {
+                println!("Erro ao digitar a altura: {}", error);
+                continue;
+            }
+        };
+
         
         let imc = calcular_imc(peso, altura);
         println!("Seu IMC é: {:.2}", imc);
@@ -47,10 +56,37 @@ fn main() {
         let classificacao = definir(imc);
 
         println!("Sua classificação de peso: {}", classificacao.classificar());
-        break
+        
+        println!("Deseja continuar? Aperte 1 para sair: ");
+
+        let op: u8 = match read_input(&mut op){
+            Ok(num) => num,
+            Err(error) => {
+                println!("Erro ao ler entrada: {}", error);
+                continue;
+            }
+        };
+        if op == 1 {
+            println!("Volte sempre");
+            break
+        } else {
+            continue;
+        }
     }
 }
+fn read_input<T: FromStr>(input: &mut String) -> Result<T, String>
+where
+    <T as FromStr>::Err: std::fmt::Debug,
+{
+    input.clear();
+    std::io::stdin()
+        .read_line(input)
+        .map_err(|e| format!("Erro ao ler entrada: {}", e))?;
 
+    let value: T = input.trim().parse().map_err(|e| format!("Erro ao converter para número: {:?}", e))?;
+
+    Ok(value)
+}
 fn calcular_imc(peso: f32, altura: f32) -> f32{
     let imc = peso / (altura * altura);
     imc
