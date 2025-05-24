@@ -78,12 +78,11 @@ fn read_input<T: FromStr>(input: &mut String) -> Result<T, String>
 where
     <T as FromStr>::Err: std::fmt::Debug,
 {
-    input.clear();
     std::io::stdin()
         .read_line(input)
-        .map_err(|e| format!("Erro ao ler entrada: {}", e))?;
+        .unwrap();
 
-    let value: T = input.trim().parse().map_err(|e| format!("Erro ao converter para número: {:?}", e))?;
+    let value: T = input.trim().parse().unwrap();
 
     Ok(value)
 }
